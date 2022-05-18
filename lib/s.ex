@@ -24,9 +24,9 @@ defmodule S do
     end
   end
 
-  @spec compile_regex(Macro.t()) :: Macro.t()
-  defmacro compile_regex(source) do
-    maybe_inline(quote(do: Regex.compile!(unquote(source))))
+  @spec abs(Macro.t()) :: Macro.t()
+  defmacro abs(n) do
+    maybe_inline(quote(do: abs(unquote(n))))
   end
 
   # @spec unescape_string(Macro.t()) :: Macro.t()
