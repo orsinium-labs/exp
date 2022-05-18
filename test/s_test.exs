@@ -25,7 +25,7 @@ defmodule STest do
     end
 
     test "compile time" do
-      q = quote do: S.abs(13)
+      q = quote do: S.abs(-13)
       assert Macro.expand(q, __ENV__) == 13
     end
   end
