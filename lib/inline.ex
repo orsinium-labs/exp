@@ -1,6 +1,6 @@
-defmodule S do
+defmodule Inline do
   @moduledoc """
-  Documentation for `S`.
+  Documentation for `Inline`.
   """
 
   @doc """
