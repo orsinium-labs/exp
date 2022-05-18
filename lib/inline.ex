@@ -56,15 +56,12 @@ defmodule Inline do
     {:map_size, 1},
     {:tl, 1},
     {:tuple_size, 1},
-    {:node, 1},
     {:binary_part, 3},
     {:bit_size, 1},
     {:byte_size, 1},
     {:size, 1},
     {:div, 2},
     {:rem, 2},
-    {:node, 0},
-    {:self, 0},
     {:bnot, 1},
     {:band, 2},
     {:bor, 2},
@@ -79,12 +76,48 @@ defmodule Inline do
     {:orelse, 2}
   ]
   # List of modules that contain only pure functions
-  @pure_modules [Integer, Float, Kernel, Atom, Base, Bitwise, String, Tuple, URI, Version]
+  @pure_modules [
+    # basic types
+    Atom,
+    Base,
+    Bitwise,
+    Float,
+    Integer,
+    Kernel,
+    String,
+    Tuple,
+    URI,
+    Version,
+
+    # collections
+    Access,
+    Enum,
+    Keyword,
+    List,
+    Map,
+    MapSet,
+    Range,
+    Stream,
+
+    # popular third-party
+    Jason,
+    Poison
+  ]
 
   @doc """
   Check if the function of given name and arity is pure.
+
+  ## Examples
+
+      iex> Inline.pure_func?(:abs, 1)
+      true
+      iex> Inline.pure_func?(:abs, 2)  # bad arity
+      false
+      iex> Inline.pure_func?(:send, 2)
+      false
+
   """
-  @spec pure_func?(atom(), pos_integer()) :: boolean()
+  @spec pure_func?(atom(), non_neg_integer()) :: boolean()
   def pure_func?(name, arity)
 
   Enum.each(@pure_funcs, fn {name, arity} ->
@@ -95,8 +128,17 @@ defmodule Inline do
 
   @doc """
   Check if the function of given module, name, and arity is pure.
+
+  ## Examples
+
+      iex> Inline.pure_func?(String, :upcase, 1)
+      true
+      iex> Inline.pure_func?(String, :upcase, 4) # bad arity
+      false
+      iex> Inline.pure_func?(File, :cwd, 0)
+      false
   """
-  @spec pure_func?(atom(), atom(), pos_integer()) :: boolean()
+  @spec pure_func?(atom(), atom(), non_neg_integer()) :: boolean()
   def pure_func?(module_name, function_name, arity)
 
   Enum.each(@pure_modules, fn module_name ->
@@ -111,7 +153,20 @@ defmodule Inline do
   Check if the given AST node is safe to be statically executed.
 
   This check is conservative. If it doesn't know anything about the function,
-  the answer is "no".
+  the result is `false`.
+
+  ## Examples
+
+      iex> Inline.safe_node?(quote do: 1)
+      true
+      iex> Inline.safe_node?(quote do: "hello")
+      true
+      iex> Inline.safe_node?(quote do: 1+2)
+      true
+      iex> Inline.safe_node?(quote do: div(2, 3))
+      true
+      iex> Inline.safe_node?(quote do: File.cwd())
+      false
   """
   @spec safe_node?(Macro.t()) :: boolean()
   def safe_node?(term)
@@ -139,6 +194,7 @@ defmodule Inline do
   It inlines the given quoted expression if and only if all `unquote` arguments
   are safe to execute at compile time.
   """
+  @spec maybe_inline(Macro.t()) :: Macro.t()
   defmacro maybe_inline(block) do
     params = Enum.flat_map(Macro.prewalker(block), &get_unquote/1)
 
@@ -152,9 +208,28 @@ defmodule Inline do
     end
   end
 
+  @doc """
+  Inlined version of `Kernel.abs/1`.
+
+  Returns the arithmetical absolute value of the `number`.
+
+  ## Examples
+
+      iex> Inline.abs(-2)
+      2
+      iex> Inline.abs(2)
+      2
+
+  This is how you can check if it was inlined:
+
+      iex> q = quote do: Inline.abs(-2)
+      iex> Macro.expand(q, __ENV__)
+      2
+
+  """
   @spec abs(Macro.t()) :: Macro.t()
-  defmacro abs(n) do
-    maybe_inline(quote(do: abs(unquote(n))))
+  defmacro abs(number) do
+    maybe_inline(quote(do: abs(unquote(number))))
   end
 
   @spec to_charlist(Macro.t()) :: Macro.t()
