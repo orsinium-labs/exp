@@ -1,15 +1,15 @@
-defmodule Inline do
+defmodule Exp do
   @moduledoc """
-  Macro to execute and inline expressions at compile time.
+  Execute and inline expressions at compile time.
 
-  * In a regular code, all you need is `Inline.inline/1`.
+  * In a regular code, all you need is `Exp.inline/1`.
   * For usage inside of macros when you don't know if arguments are safe,
-    see `Inline.maybe_inline/1`.
-  * `Inline.abs/1` is a real-world example of using `Inline.maybe_inline/1`.
-  * `Inline.pure_func?/3` and `Inline.safe_node?/1` are utility function that
-    `Inline.maybe_inline/1` uses to make decision if expression is safe to inline.
+    see `Exp.maybe_inline/1`.
+  * `Exp.abs/1` is a real-world example of using `Exp.maybe_inline/1`.
+  * `Exp.pure_func?/3` and `Exp.safe_node?/1` are utility function that
+    `Exp.maybe_inline/1` uses to make decision if expression is safe to inline.
 
-  Source: [github.com/orsinium-labs/inline](https://github.com/orsinium-labs/inline)
+  Source: [github.com/orsinium-labs/exp](https://github.com/orsinium-labs/exp)
   """
 
   @doc """
@@ -34,8 +34,8 @@ defmodule Inline do
 
   The usage is straightforward, just wrap whatever you want to inline:
 
-      iex> require Inline
-      iex> Inline.inline(1 + 2)
+      iex> require Exp
+      iex> Exp.inline(1 + 2)
       3
 
   The difference is that the expression inside will be executed at compile time
@@ -43,7 +43,7 @@ defmodule Inline do
 
       iex(21)> q = quote do: 1 + 2
       iex(22)> {:+, _, [1, 2]} = Macro.expand(q, __ENV__)
-      iex(23)> q = quote do: Inline.inline(1 + 2)
+      iex(23)> q = quote do: Exp.inline(1 + 2)
       iex(24)> 3 = Macro.expand(q, __ENV__)
 
   """
@@ -150,11 +150,11 @@ defmodule Inline do
 
   ## Examples
 
-      iex> Inline.pure_func?(:abs, 1)
+      iex> Exp.pure_func?(:abs, 1)
       true
-      iex> Inline.pure_func?(:abs, 2)  # bad arity
+      iex> Exp.pure_func?(:abs, 2)  # bad arity
       false
-      iex> Inline.pure_func?(:send, 2)
+      iex> Exp.pure_func?(:send, 2)
       false
 
   """
@@ -172,15 +172,15 @@ defmodule Inline do
 
   ## Examples
 
-      iex> Inline.pure_func?(String, :upcase, 1)
+      iex> Exp.pure_func?(String, :upcase, 1)
       true
-      iex> Inline.pure_func?(String, :upcase, 4) # bad arity
+      iex> Exp.pure_func?(String, :upcase, 4) # bad arity
       false
-      iex> Inline.pure_func?(File, :cwd, 0)
+      iex> Exp.pure_func?(File, :cwd, 0)
       false
-      iex> Inline.pure_func?(Kernel, :abs, 1)
+      iex> Exp.pure_func?(Kernel, :abs, 1)
       true
-      iex> Inline.pure_func?(:erlang, :abs, 1)
+      iex> Exp.pure_func?(:erlang, :abs, 1)
       true
   """
   @spec pure_func?(atom(), atom(), non_neg_integer()) :: boolean()
@@ -201,19 +201,19 @@ defmodule Inline do
   This check is conservative. If it doesn't know anything about the function,
   the result is `false`.
 
-  It's used be `Inline.maybe_inline/1` to make a decision if the code should be inlined.
+  It's used be `Exp.maybe_inline/1` to make a decision if the code should be inlined.
 
   ## Examples
 
-      iex> Inline.safe_node?(quote do: 1)
+      iex> Exp.safe_node?(quote do: 1)
       true
-      iex> Inline.safe_node?(quote do: "hello")
+      iex> Exp.safe_node?(quote do: "hello")
       true
-      iex> Inline.safe_node?(quote do: 1+2)
+      iex> Exp.safe_node?(quote do: 1+2)
       true
-      iex> Inline.safe_node?(quote do: div(2, 3))
+      iex> Exp.safe_node?(quote do: div(2, 3))
       true
-      iex> Inline.safe_node?(quote do: File.cwd())
+      iex> Exp.safe_node?(quote do: File.cwd())
       false
   """
   @spec safe_node?(Macro.t()) :: boolean()
@@ -252,27 +252,27 @@ defmodule Inline do
   Here, `var` is safe and so the expression is inlined:
 
       iex> var = quote do: 13
-      iex> 13 = Inline.maybe_inline(quote do: abs(unquote(var)))
+      iex> 13 = Exp.maybe_inline(quote do: abs(unquote(var)))
 
   Here, `var` is not safe and so the expression is left as-is:
 
       iex> var = quote do: node()
-      iex> {:abs, _, _} = Inline.maybe_inline(quote do: abs(unquote(var)))
+      iex> {:abs, _, _} = Exp.maybe_inline(quote do: abs(unquote(var)))
 
   Here, the expression isn't safe but it's still inlined because `maybe_inline/2`
   checks only safety of expressions inside `Kernel.SpecialForms.unquote/1`:
 
-      iex> Inline.maybe_inline(quote do: node())
+      iex> Exp.maybe_inline(quote do: node())
       :nonode@nohost
 
-  See also `Inline.abs/1` for a real-world usage example.
+  See also `Exp.abs/1` for a real-world usage example.
   """
   @spec maybe_inline(Macro.t()) :: Macro.t()
   defmacro maybe_inline(block) do
     params = Enum.flat_map(Macro.prewalker(block), &get_unquote/1)
 
     quote generated: true do
-      if Inline.safe_node?(unquote(params)) do
+      if Exp.safe_node?(unquote(params)) do
         {term, _} = unquote(block) |> Code.eval_quoted()
         Macro.escape(term)
       else
@@ -288,18 +288,18 @@ defmodule Inline do
 
   ## Examples
 
-      iex> Inline.abs(-2)
+      iex> Exp.abs(-2)
       2
-      iex> Inline.abs(2)
+      iex> Exp.abs(2)
       2
 
   This is how you can check if it was inlined:
 
       iex> # inlined:
-      iex> q = quote do: Inline.abs(-2)
+      iex> q = quote do: Exp.abs(-2)
       iex> 2 = Macro.expand(q, __ENV__)
       iex> # not inlined because unsafe:
-      iex> q = quote do: Inline.abs(node())
+      iex> q = quote do: Exp.abs(node())
       iex> {:abs, _, _} = Macro.expand(q, __ENV__)
 
   """

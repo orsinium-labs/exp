@@ -1,4 +1,4 @@
-# Inline
+# Exp
 
 Elixir library to execute and inline expressions at compile time.
 
@@ -17,8 +17,8 @@ end
 Compile a regular expression at compile time (without using sigils):
 
 ```elixir
-require Inline
-rex = Inline.inline(Regex.compile!("[0-9]+"))
+require Exp
+rex = Exp.inline(Regex.compile!("[0-9]+"))
 ```
 
-**Documentation**: [hexdocs.pm/inline](https://hexdocs.pm/inline/Inline.html).
+**Documentation**: [hexdocs.pm/exp](https://hexdocs.pm/exp/Exp.html).

@@ -1,16 +1,16 @@
-defmodule Inline.MixProject do
+defmodule Exp.MixProject do
   @moduledoc false
   use Mix.Project
 
   def project do
     [
-      app: :inline,
+      app: :exp,
       version: "1.0.0",
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
       description: "Execute and inline code at compile time.",
-      source_url: "https://github.com/orsinium-labs/inline",
-      homepage_url: "https://github.com/orsinium-labs/inline",
+      source_url: "https://github.com/orsinium-labs/exp",
+      homepage_url: "https://github.com/orsinium-labs/exp",
       package: package(),
       deps: deps()
     ]
@@ -26,7 +26,7 @@ defmodule Inline.MixProject do
   def package do
     [
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/orsinium-labs/inline"}
+      links: %{"GitHub" => "https://github.com/orsinium-labs/exp"}
     ]
   end
 
