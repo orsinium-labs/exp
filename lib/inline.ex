@@ -9,10 +9,11 @@ defmodule Inline do
   * `Inline.pure_func?/3` and `Inline.safe_node?/1` are utility function that
     `Inline.maybe_inline/1` uses to make decision if expression is safe to inline.
 
+  Source: [github.com/orsinium-labs/inline](https://github.com/orsinium-labs/inline)
   """
 
   @doc """
-  Macro that statically executes and inlines the passed argument at compile time.
+  Macro to statically execute and inline an expression at compile time.
 
   If the expression cannot be inlined, it will explode at compile time.
   This is your responsibility to make sure the code can be inlined and is safe to inline.
