@@ -11,6 +11,7 @@ defmodule Exp.MixProject do
       description: "Execute and inline code at compile time.",
       source_url: "https://github.com/orsinium-labs/exp",
       homepage_url: "https://github.com/orsinium-labs/exp",
+      docs: [source_ref: "master"],
       package: package(),
       deps: deps()
     ]
