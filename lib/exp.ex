@@ -305,18 +305,18 @@ defmodule Exp do
   """
   @spec abs(Macro.t()) :: Macro.t()
   defmacro abs(number) do
-    maybe_inline(quote(do: abs(unquote(number))))
+    maybe_inline(quote do: abs(unquote(number)))
   end
 
   @doc false
   @spec to_charlist(Macro.t()) :: Macro.t()
   defmacro to_charlist(str) do
-    maybe_inline(quote(do: Kernel.to_charlist(unquote(str))))
+    maybe_inline(quote do: Kernel.to_charlist(unquote(str)))
   end
 
   @doc false
   @spec to_string(Macro.t()) :: Macro.t()
   defmacro to_string(str) do
-    maybe_inline(quote(do: Kernel.to_string(unquote(str))))
+    maybe_inline(quote do: Kernel.to_string(unquote(str)))
   end
 end
